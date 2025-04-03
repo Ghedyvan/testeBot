@@ -95,7 +95,7 @@ client.on("message", async (msg) => {
         session.invalidCount = 0;
         await msg.reply(
           "📺 *PLANOS IPTV* 📺\n\n" +
-          "💵 *1 MÊS* - R$ 20 (R$ 25 na primeira mensalidade)\n\n💰 *3 MESES* - R$ 55\n🔥 *6 MESES* - R$ 100\n(Apenas R$ 16,66/mês)\n🏆 *1 ANO* - R$ 180\n(Só R$ 15,00/mês)\n\n" +
+          "💵 *1 MÊS* - R$ 20 _(R$ 25 na primeira mensalidade)_\n💰 *3 MESES* - R$ 55\n🔥 *6 MESES* - R$ 100\n_(Apenas R$ 16,66/mês)_\n🏆 *1 ANO* - R$ 180\n_(Só R$ 15,00/mês)_\n\n" +
           "💳 Aceitamos PIX, boleto e cartão de crédito\n\n1️⃣ Ativar acesso agora\n0️⃣ Menu inicial"
         );
       } else if (msg.body === "4"){
@@ -108,7 +108,7 @@ client.on("message", async (msg) => {
       
       else {
         session.invalidCount = (session.invalidCount || 0) + 1;
-        if (session.invalidCount < 2) {
+        if (session.invalidCount < 3) {
           await msg.reply(
             "Opção inválida! Escolha uma opção:\n\n1️⃣ Teste grátis\n2️⃣ Já sou cliente"
           );
