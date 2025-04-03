@@ -15,6 +15,8 @@ const client = new Client({
     }
 });
 
+const userSessions = new Map();
+
 // Gerar QR Code para autenticação
 client.on('qr', qr => {
     qrcode.generate(qr, { small: true });
