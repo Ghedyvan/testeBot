@@ -9,6 +9,15 @@ const ibo = MessageMedia.fromFilePath("./ibo.png");
 // Configuração do cliente
 const client = new Client({
     authStrategy: new LocalAuth(),
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--single-process',         // Reduz processos do Chromium
+      '--no-zygote',
+      '--disable-gpu',
+      '--disable-dev-shm-usage',  // Evita usar /dev/shm (problemático em VPS)
+      '--max-old-space-size=256'  // Limite de RAM para o Node.js (em MB)
+    ],
     puppeteer: {
         headless: true,
         args: ['--no-sandbox', '--disable-setuid-sandbox']
