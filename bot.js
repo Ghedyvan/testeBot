@@ -56,7 +56,7 @@ client.on("message", async (msg) => {
     ) {
       userSessions.set(chatId, { step: "menu", timestamp: now, invalidCount: 0 });
       await msg.reply(
-        "Bem-vindo! Escolha uma opção:\n\n1️⃣ Teste grátis\n2️⃣ Já sou cliente"
+        "Bem-vindo de volta ao menu! Escolha uma opção:\n\n1️⃣ Quero um teste grátis\n2️⃣ Já sou cliente\n3️⃣ Preços e planos\n4️⃣ Como funciona"
       );
       return;
     }
@@ -67,7 +67,7 @@ client.on("message", async (msg) => {
       session.step = "menu";
       session.invalidCount = 0;
       await msg.reply(
-        "Bem-vindo de volta ao menu! Escolha uma opção:\n\n1️⃣ Teste grátis\n2️⃣ Já sou cliente"
+        "Bem-vindo de volta ao menu! Escolha uma opção:\n\n1️⃣ Quero um teste grátis\n2️⃣ Já sou cliente\n3️⃣ Preços e planos\n4️⃣ Como funciona"
       );
       return;
     }
@@ -90,7 +90,23 @@ client.on("message", async (msg) => {
         await msg.reply(
           "Perfeito. Como posso te ajudar?\n\n1️⃣ Quero renovar acesso\n2️⃣ Quero reativar acesso vencido\n3️⃣ Estou com problemas\n4️⃣ Quero configurar um dispositivo\n\n0️⃣ Menu inicial"
         );
-      } else {
+      } else if (msg.body === "3"){
+        session.step = "planos";
+        session.invalidCount = 0;
+        await msg.reply(
+          "📺 *PLANOS IPTV* 📺\n\n" +
+          "💵 *1 MÊS* - R$ 20 (R$ 25 na primeira mensalidade)\n\n💰 *3 MESES* - R$ 55\n🔥 *6 MESES* - R$ 100\n(Apenas R$ 16,66/mês)\n🏆 *1 ANO* - R$ 180\n(Só R$ 15,00/mês)\n\n" +
+          "💳 Aceitamos PIX, boleto e cartão de crédito\n\n1️⃣ Ativar acesso agora\n0️⃣ Menu inicial"
+        );
+      } else if (msg.body === "4"){
+        session.step = "funcionamento";
+        session.invalidCount = 0;
+        await msg.reply(
+          "📺 *O QUE VOCÊ RECEBE:*\n- +1.000 canais (Premiere, Telecine, SportTV etc)\n- +20.000 filmes (Netflix, HBO Max, Prime Video etc)\n- +7.000 séries(Netflix, HBO Max, Prime Video etc)\n\n⚙️ *COMO FUNCIONA:*\n1. Você assina o plano\n2. Recebe login/senha no WhatsApp\n3. Instala nosso app ou player compatível\n4. Aproveita a programação 24h\n\n0️⃣ Menu inicial"
+        );
+      } 
+      
+      else {
         session.invalidCount = (session.invalidCount || 0) + 1;
         if (session.invalidCount < 2) {
           await msg.reply(
@@ -98,7 +114,20 @@ client.on("message", async (msg) => {
           );
         }
       }
-    } else if (session.step === "teste_gratis" || session.step === "configurar") {
+    } else if (session.step === "planos") {
+      if (msg.body === "1"){
+        session.step = "ativar";
+        session.invalidCount = 0;
+        // await msg.reply(
+        //   "Qual plano você deseja ativar?\n\n1️⃣ 1 MÊS - R$ 20 (R$ 25 na primeira mensalidade)\n2️⃣ 3 MESES - R$ 55\n3️⃣ 6 MESES - R$ 100\n4️⃣ 1 ANO - R$ 180\n\n0️⃣ Menu inicial"
+        // );
+        await msg.reply(
+          "Perfeito, me fale qual plano gostaria de ativar e logo que ver a mensagem te responderei ok?\n\n0️⃣ Menu inicial"
+        );
+      }
+    }
+    
+    else if (session.step === "teste_gratis" || session.step === "configurar") {
       if (msg.body === "1") {
         session.step = "celular";
         session.invalidCount = 0;
@@ -186,7 +215,8 @@ client.on("message", async (msg) => {
           "▪ Altere o DNS para *Manual*\n" +
           "▪ Insira: `168.235.81.205` e salve\n" +
           "▪ Reinicie a TV e abra o SmartUp\n\n" +
-          "📸 Prontinho! Me envie uma foto da tela que te mando seus dados de acesso."
+          "📸 Prontinho! Me envie uma foto da tela que te mando seus dados de acesso.\n\n" +
+          "⚠️ *Obs:* Se não encontrar o SmartUp, me avise que te ajudo a baixar outro app."
         );
       } else if (msg.body === "3") {
         session.step = "android";
@@ -253,7 +283,7 @@ client.on("message", async (msg) => {
         session.invalidCount = (session.invalidCount || 0) + 1;
         if (session.invalidCount < 2) {
           await msg.reply(
-            "Perfeito. Como posso te ajudar?\n\n1️⃣ Quero renovar acesso\n2️⃣ Quero reativar acesso vencido\n3️⃣ Estou com problemas\n\n0️⃣ Menu inicial"
+            "Perfeito. Como posso te ajudar?\n\n1️⃣ Quero renovar acesso\n2️⃣ Quero reativar acesso vencido\n3️⃣ Estou com problemas\n4️⃣ Quero configurar um dispositivo\n\n0️⃣ Menu inicial"
           );
         }
       }
