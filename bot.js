@@ -34,42 +34,41 @@ async function obterJogosParaWhatsApp() {
   try {
     const { data } = await axios.get(URL, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-        'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
       },
-      timeout: 10000
+      timeout: 20000
     });
 
     const $ = cheerio.load(data);
-    const hoje = moment().format('DD/MM'); // Formato para comparação (dia/mês)
+    const hoje = moment().format('DD/MM');
     const jogos = [];
 
-    // Processamento da tabela com filtro de data
+    // Processamento corrigido para a estrutura atual
     $('table tr').each((index, row) => {
-      if (index === 0) return; // Pula cabeçalho
+      if (index === 0) return;
       
       const cols = $(row).find('td');
       if (cols.length >= 4) {
-        // Extrai corretamente cada campo
-        const dataCompleta = $(cols[0]).text().trim();
-        const [dataJogo, horario] = dataCompleta.includes(' ') 
-          ? dataCompleta.split(' ') 
-          : [dataCompleta, 'Horário não definido'];
-        
-        const campeonato = $(cols[1]).text().trim();
-        const jogo = $(cols[2]).text().trim();
-        const transmissao = $(cols[3]).text().trim();
-        
-        // Filtra apenas jogos do dia atual
+        const dataJogo = $(cols[0]).text().trim();  // Formato: "07/04"
+        const campeonato = $(cols[1]).text().trim(); // Aqui está o horário real: "19h"
+        const jogo = $(cols[2]).text().trim();      // Times: "Atlético-GO x Athletic"
+        const transmissao = $(cols[3]).text().trim(); // Canais: "Disney+"
+
+        // Verifica se é do dia atual
         if (dataJogo === hoje) {
-          const times = jogo.split(' x ').map(t => t.trim());
+          // Converte "19h" para formato "19:00"
+          const horario = campeonato.includes('h') 
+            ? campeonato.replace('h', ':00')
+            : 'A definir';
+          
+          const times = jogo.split(/( x | vs )/).filter(t => t && ![' x ', ' vs '].includes(t));
           if (times.length === 2) {
             jogos.push({
-              horario: horario === 'Horário não definido' ? 'A definir' : horario,
-              campeonato,
+              horario,
+              campeonato: 'Campeonato não especificado', // O site não fornece nesta estrutura
               mandante: times[0],
               visitante: times[1],
-              transmissao: transmissao.split(',').map(t => t.trim())
+              transmissao: transmissao.split(/[,;]/).map(t => t.trim())
             });
           }
         }
@@ -80,25 +79,24 @@ async function obterJogosParaWhatsApp() {
     let mensagem = `⚽ *JOGOS DE HOJE* (${moment().format('DD/MM/YYYY')}) ⚽\n\n`;
     
     if (jogos.length === 0) {
-      mensagem += "ℹ️ Não há jogos programados para hoje.";
+      mensagem += "ℹ️ Não há jogos programados para hoje no site.\n";
+      mensagem += "🔍 Confira: " + URL;
     } else {
-      // Ordena por horário
       jogos.sort((a, b) => a.horario.localeCompare(b.horario));
       
       jogos.forEach((jogo) => {
         mensagem += `⏰ *${jogo.horario}* - ${jogo.mandante} vs ${jogo.visitante}\n`;
-        mensagem += `🏆 ${jogo.campeonato}\n`;
         mensagem += `📺 ${jogo.transmissao.join(', ')}\n\n`;
       });
       
-      mensagem += `✅ Total de jogos hoje: ${jogos.length}`;
+      mensagem += `✅ Total: ${jogos.length} jogos hoje`;
     }
 
     return mensagem;
 
   } catch (erro) {
-    console.error('Erro ao obter jogos:', erro);
-    return "⚠️ Não foi possível obter os jogos de hoje. Por favor, tente novamente mais tarde.";
+    console.error('Erro:', erro);
+    return "⚠️ Erro ao buscar jogos. Tente novamente mais tarde.";
   }
 }
 
