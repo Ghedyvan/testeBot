@@ -88,7 +88,7 @@ client.on("message", async (msg) => {
         session.step = "cliente";
         session.invalidCount = 0;
         await msg.reply(
-          "Perfeito. Como posso te ajudar?\n\n1️⃣ Quero renovar acesso\n2️⃣ Quero reativar acesso vencido\n3️⃣ Estou com problemas\n4️⃣ Quero configurar um dispositivo\n\n5️⃣ Esqueci meus dados de acesso\n0️⃣ Menu inicial"
+          "Perfeito. Como posso te ajudar?\n\n1️⃣ Quero renovar acesso\n2️⃣ Quero reativar acesso vencido\n3️⃣ Estou com problemas\n4️⃣ Quero configurar um dispositivo\n5️⃣ Esqueci meus dados de acesso\n\n0️⃣ Menu inicial"
         );
       } else if (msg.body === "3"){
         session.step = "planos";
@@ -288,7 +288,7 @@ client.on("message", async (msg) => {
         session.invalidCount = (session.invalidCount || 0) + 1;
         if (session.invalidCount < 3) {
           await msg.reply(
-              "Perfeito. Como posso te ajudar?\n\n1️⃣ Quero renovar acesso\n2️⃣ Quero reativar acesso vencido\n3️⃣ Estou com problemas\n4️⃣ Quero configurar um dispositivo\n5️⃣ Esqueci meus dados de acesso\n0️⃣ Menu inicial"
+              "Perfeito. Como posso te ajudar?\n\n1️⃣ Quero renovar acesso\n2️⃣ Quero reativar acesso vencido\n3️⃣ Estou com problemas\n4️⃣ Quero configurar um dispositivo\n5️⃣ Esqueci meus dados de acesso\n\n0️⃣ Menu inicial"
           );
         }
       }
