@@ -104,12 +104,11 @@ client.on("message", async (msg) => {
         await msg.reply(
           "📺 *O QUE VOCÊ RECEBE:*\n- +1.000 canais (Premiere, Telecine, SportTV etc)\n- +20.000 filmes (Netflix, HBO Max, Prime Video etc)\n- +7.000 séries(Netflix, HBO Max, Prime Video etc)\n\n⚙️ *COMO FUNCIONA:*\n1. Você assina o plano\n2. Recebe login/senha no WhatsApp\n3. Instala nosso app ou player compatível\n4. Aproveita a programação 24h\n\n0️⃣ Menu inicial"
         );
-      }  
-      else {
+      } else {
         session.invalidCount = (session.invalidCount || 0) + 1;
         if (session.invalidCount < 3) {
           await msg.reply(
-            "Opção inválida! Escolha uma opção:\n\n1️⃣ Teste grátis\n2️⃣ Já sou cliente"
+            "Opção inválida! Escolha uma opção:\n\n1️⃣ Quero um teste grátis\n2️⃣ Já sou cliente\n3️⃣ Preços e planos\n4️⃣ Como funciona"
           );
         }
       }
@@ -148,11 +147,12 @@ client.on("message", async (msg) => {
           "Qual a marca da sua TV?\n\n1️⃣ LG\n2️⃣ Samsung\n3️⃣ Outra com Android\n4️⃣ Outra com Roku\n5️⃣ Não sei se é Roku ou Android\n\n0️⃣ Menu inicial"
         );
       } else if (msg.body === "4") {
+        session.step = "computador";
         session.invalidCount = 0;
         await msg.reply(
-          "🌐 Acesse: applime.cc/w\n" +
+          "🌐 Acesse: applime.cc\n" +
           "👤 Use seus dados de login\n\n" +
-          "📩 Esqueceu ou ainda não RECEBEU os dados? Me informa aqui!"
+          "📩 Esqueceu ou ainda não recebeu os dados? Me informa aqui!"
         );
       } else {
         session.invalidCount = (session.invalidCount || 0) + 1;
