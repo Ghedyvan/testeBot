@@ -88,7 +88,7 @@ client.on("message", async (msg) => {
         session.step = "cliente";
         session.invalidCount = 0;
         await msg.reply(
-          "Perfeito. Como posso te ajudar?\n\n1️⃣ Quero renovar acesso\n2️⃣ Quero reativar acesso vencido\n3️⃣ Estou com problemas\n4️⃣ Quero configurar um dispositivo\n\n0️⃣ Menu inicial"
+          "Perfeito. Como posso te ajudar?\n\n1️⃣ Quero renovar acesso\n2️⃣ Quero reativar acesso vencido\n3️⃣ Estou com problemas\n4️⃣ Quero configurar um dispositivo\n5️⃣ Esqueci meus dados de acesso\n0️⃣ Menu inicial"
         );
       } else if (msg.body === "3"){
         session.step = "planos";
@@ -104,8 +104,7 @@ client.on("message", async (msg) => {
         await msg.reply(
           "📺 *O QUE VOCÊ RECEBE:*\n- +1.000 canais (Premiere, Telecine, SportTV etc)\n- +20.000 filmes (Netflix, HBO Max, Prime Video etc)\n- +7.000 séries(Netflix, HBO Max, Prime Video etc)\n\n⚙️ *COMO FUNCIONA:*\n1. Você assina o plano\n2. Recebe login/senha no WhatsApp\n3. Instala nosso app ou player compatível\n4. Aproveita a programação 24h\n\n0️⃣ Menu inicial"
         );
-      } 
-      
+      }  
       else {
         session.invalidCount = (session.invalidCount || 0) + 1;
         if (session.invalidCount < 3) {
@@ -125,9 +124,7 @@ client.on("message", async (msg) => {
           "Perfeito, me fale qual plano gostaria de ativar e logo que ver a mensagem te responderei ok?\n\n0️⃣ Menu inicial"
         );
       }
-    }
-    
-    else if (session.step === "teste_gratis" || session.step === "configurar") {
+    } else if (session.step === "teste_gratis" || session.step === "configurar") {
       if (msg.body === "1") {
         session.step = "celular";
         session.invalidCount = 0;
@@ -159,7 +156,7 @@ client.on("message", async (msg) => {
         );
       } else {
         session.invalidCount = (session.invalidCount || 0) + 1;
-        if (session.invalidCount < 2) {
+        if (session.invalidCount < 3) {
           await msg.reply(
             "Escolha um dispositivo válido:\n\n1️⃣ Celular\n2️⃣ TV Box\n3️⃣ Smart TV\n4️⃣ Computador\n\n0️⃣ Menu inicial"
           );
@@ -188,7 +185,7 @@ client.on("message", async (msg) => {
         );
       } else {
         session.invalidCount = (session.invalidCount || 0) + 1;
-        if (session.invalidCount < 2) {
+        if (session.invalidCount < 3) {
           await msg.reply(
             "Escolha uma opção válida:\n\n1️⃣ Android\n2️⃣ iPhone\n\n0️⃣ Menu inicial"
           );
@@ -248,7 +245,7 @@ client.on("message", async (msg) => {
         );
       } else {
         session.invalidCount = (session.invalidCount || 0) + 1;
-        if (session.invalidCount < 2) {
+        if (session.invalidCount < 3) {
           await msg.reply(
             "Qual a marca da sua TV?\n\n1️⃣ LG\n2️⃣ Samsung\n3️⃣ Outra com Android\n4️⃣ Outra com Roku\n5️⃣ Não sei se é Roku ou Android\n\n0️⃣ Menu inicial"
           );
@@ -279,11 +276,19 @@ client.on("message", async (msg) => {
         await msg.reply(
           "Em qual dispositivo gostaria de configurar agora?\n\n1️⃣ Celular\n2️⃣ TV Box\n3️⃣ Smart TV\n4️⃣ Computador\n\n0️⃣ Menu inicial"
         );
-      } else {
+      } else if (msg.body === "5") {
+        session.step = "esquecer";
+        session.invalidCount = 0;
+        await msg.reply(
+          "📩 Me informa seu primeiro e segundo nome que irei buscar seus dados de acesso para te enviar"
+        );
+      } 
+      
+      else {
         session.invalidCount = (session.invalidCount || 0) + 1;
-        if (session.invalidCount < 2) {
+        if (session.invalidCount < 3) {
           await msg.reply(
-            "Perfeito. Como posso te ajudar?\n\n1️⃣ Quero renovar acesso\n2️⃣ Quero reativar acesso vencido\n3️⃣ Estou com problemas\n4️⃣ Quero configurar um dispositivo\n\n0️⃣ Menu inicial"
+              "Perfeito. Como posso te ajudar?\n\n1️⃣ Quero renovar acesso\n2️⃣ Quero reativar acesso vencido\n3️⃣ Estou com problemas\n4️⃣ Quero configurar um dispositivo\n5️⃣ Esqueci meus dados de acesso\n0️⃣ Menu inicial"
           );
         }
       }
