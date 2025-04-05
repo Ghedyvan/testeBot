@@ -46,7 +46,8 @@ client.on("message", async (msg) => {
     userSessions.set(chatId, { step: "menu", timestamp: now, invalidCount: 0 });
     await msg.reply(
       "Bem-vindo ao menu! Escolha uma opção:\n\n" +
-      "1️⃣ Quero um teste grátis\n2️⃣ Já sou cliente\n3️⃣ Preços e planos\n4️⃣ Como funciona"
+      "1️⃣ Quero um teste grátis\n2️⃣ Já sou cliente\n3️⃣ Preços e planos\n4️⃣ Como funciona\n\n" +
+      "⚠️ *Importante:* Suas mensagens só serão vistas por um humano se você responder ao MENU!"
     );
     return;
   }
@@ -57,7 +58,9 @@ client.on("message", async (msg) => {
     session.step = "menu";
     session.invalidCount = 0;
     await msg.reply(
-      "Bem-vindo ao menu! Escolha uma opção:\n\n1️⃣ Quero um teste grátis\n2️⃣ Já sou cliente\n3️⃣ Preços e planos\n4️⃣ Como funciona"
+      "Bem-vindo ao menu! Escolha uma opção:\n\n" +
+      "1️⃣ Quero um teste grátis\n2️⃣ Já sou cliente\n3️⃣ Preços e planos\n4️⃣ Como funciona\n\n" +
+      "⚠️ *Importante:* Suas mensagens só serão vistas por um humano se você responder ao MENU!"
     );
     return;
   }
