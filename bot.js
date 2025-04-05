@@ -1,12 +1,7 @@
 const { Client, LocalAuth } = require("whatsapp-web.js");
 const { MessageMedia } = require("whatsapp-web.js");
 const qrcode = require("qrcode-terminal");
-const path = require("path");
-const axios = require('axios');
-const cheerio = require('cheerio');
-const moment = require('moment');
-
-const URL = 'https://trivela.com.br/onde-assistir/futebol-ao-vivo-os-jogos-de-hoje-na-tv/';
+const { obterJogosParaWhatsApp } = require('./scrapper.js');
 const iptvstreamplayer = MessageMedia.fromFilePath("./streamplayer.png");
 const ibo = MessageMedia.fromFilePath("./ibo.png");
 
@@ -14,7 +9,7 @@ const client = new Client({
   authStrategy: new LocalAuth(),
   puppeteer: {
     headless: true,
-    executablePath: "/usr/bin/chromium-browser",
+    // executablePath: "/usr/bin/chromium-browser",
     args: [
       "--no-sandbox",
       "--disable-setuid-sandbox",
@@ -28,80 +23,6 @@ const client = new Client({
 });
 
 const userSessions = new Map();
-
-// Função para obter jogos formatada para WhatsApp
-async function obterJogosParaWhatsApp() {
-  try {
-    const { data } = await axios.get(URL, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-        'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7'
-      },
-      timeout: 10000
-    });
-
-    const $ = cheerio.load(data);
-    const hoje = moment().format('DD/MM'); // Formato para comparação (dia/mês)
-    const jogos = [];
-
-    // Processamento da tabela com filtro de data
-    $('table tr').each((index, row) => {
-      if (index === 0) return; // Pula cabeçalho
-      
-      const cols = $(row).find('td');
-      if (cols.length >= 4) {
-        // Extrai corretamente cada campo
-        const dataCompleta = $(cols[0]).text().trim();
-        const [dataJogo, horario] = dataCompleta.includes(' ') 
-          ? dataCompleta.split(' ') 
-          : [dataCompleta, 'Horário não definido'];
-        
-        const campeonato = $(cols[1]).text().trim();
-        const jogo = $(cols[2]).text().trim();
-        const transmissao = $(cols[3]).text().trim();
-        
-        // Filtra apenas jogos do dia atual
-        if (dataJogo === hoje) {
-          const times = jogo.split(' x ').map(t => t.trim());
-          if (times.length === 2) {
-            jogos.push({
-              horario: horario === 'Horário não definido' ? 'A definir' : horario,
-              campeonato,
-              mandante: times[0],
-              visitante: times[1],
-              transmissao: transmissao.split(',').map(t => t.trim())
-            });
-          }
-        }
-      }
-    });
-
-    // Formatação para WhatsApp
-    let mensagem = `⚽ *JOGOS DE HOJE* (${moment().format('DD/MM/YYYY')}) ⚽\n\n`;
-    
-    if (jogos.length === 0) {
-      mensagem += "ℹ️ Não há jogos programados para hoje.";
-    } else {
-      // Ordena por horário
-      jogos.sort((a, b) => a.horario.localeCompare(b.horario));
-      
-      jogos.forEach((jogo) => {
-        mensagem += `⏰ *${jogo.horario}* - ${jogo.mandante} vs ${jogo.visitante}\n`;
-        mensagem += `🏆 ${jogo.campeonato}\n`;
-        mensagem += `📺 ${jogo.transmissao.join(', ')}\n\n`;
-      });
-      
-      mensagem += `✅ Total de jogos hoje: ${jogos.length}`;
-    }
-
-    return mensagem;
-
-  } catch (erro) {
-    console.error('Erro ao obter jogos:', erro);
-    return "⚠️ Não foi possível obter os jogos de hoje. Por favor, tente novamente mais tarde.";
-  }
-}
-
 // Eventos do cliente WhatsApp
 client.on("qr", (qr) => {
   qrcode.generate(qr, { small: true });
@@ -182,8 +103,18 @@ client.on("message", async (msg) => {
   } else if (session.step === "cliente" && msg.body === "6") {
     session.step = "jogos";
     session.invalidCount = 0;
-    const mensagemJogos = await obterJogosParaWhatsApp();
-    await msg.reply(mensagemJogos);
+  
+    const resposta = await obterJogosParaWhatsApp();
+  
+    // ⚠️ ADICIONE ISTO PARA DEPURAR
+    console.log('[DEBUG] Conteúdo da resposta:', resposta);
+    console.log('[DEBUG] Tipo da resposta:', typeof resposta);
+  
+    if (typeof resposta === 'string' && resposta.length > 0) {
+      await msg.reply(resposta);
+    } else {
+      await msg.reply("⚠️ Nenhum jogo foi encontrado ou houve erro ao obter os dados.");
+    }
   } else if (session.step === "planos") {
     if (msg.body === "1") {
       session.step = "ativar";
