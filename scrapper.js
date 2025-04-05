@@ -24,6 +24,9 @@ async function obterJogosParaWhatsApp() {
           // Filtra os jogos do cache com base no horário atual
           const agora = moment().tz("America/Sao_Paulo");
           const fimDoDia = moment().tz("America/Sao_Paulo").endOf("day");
+          console.log("Horário atual:", agora.format("HH:mm"));
+          console.log("Data de hoje:", dataHoje);
+
           const jogosFiltrados = cacheData.jogos.filter((jogo) => {
             const horarioJogo = moment(jogo.horario, "HH:mm").tz(
               "America/Sao_Paulo"
