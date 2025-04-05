@@ -36,10 +36,39 @@ client.on("ready", () => {
   console.log("Bot está pronto!");
 });
 
+let modoAusente = false; // Variável global para rastrear o estado de "ausente"
+const avisosEnviados = new Set(); // Rastreamento de usuários que já receberam o aviso
+
 client.on("message", async (msg) => {
   if (msg.from.endsWith("@g.us")) return;
 
   const chatId = msg.from;
+
+  // Comando para ativar o modo ausente
+  if (msg.body.toLowerCase() === "/ausente") {
+    modoAusente = true;
+    avisosEnviados.clear(); // Limpa os avisos enviados ao ativar o modo ausente
+    await msg.reply("Modo ausente ativado.");
+    return;
+  }
+
+  // Comando para desativar o modo ausente
+  if (msg.body.toLowerCase() === "/ativo") {
+    modoAusente = false;
+    avisosEnviados.clear(); // Limpa os avisos enviados ao desativar o modo ausente
+    await msg.reply("Modo ausente desativado.");
+    return;
+  }
+
+  // Verifica se o modo ausente está ativado
+  if (modoAusente && !avisosEnviados.has(chatId)) {
+    // Envia o aviso apenas se ainda não foi enviado para este usuário
+    await msg.reply(
+      "No momento estamos ausentes, então o atendimento humano pode demorar um pouco mais que o normal."
+    );
+    avisosEnviados.add(chatId); // Marca o usuário como já avisado
+  }
+
   const now = Date.now();
 
   if (!userSessions.has(chatId) || now - userSessions.get(chatId).timestamp > 6 * 60 * 60 * 1000) {
@@ -170,7 +199,7 @@ client.on("message", async (msg) => {
     }
   } else if (session.step === "celular") {
     if (msg.body === "1") {
-      session.step = "android";
+      session.step = "android";ß
       session.invalidCount = 0;
       await client.sendMessage(msg.from, iptvstreamplayer, {
         caption:
@@ -288,18 +317,7 @@ client.on("message", async (msg) => {
       await msg.reply(
         "📩 Me informa seu primeiro e segundo nome que irei buscar seus dados de acesso para te enviar"
       );
-    } else if (msg.body === "6") {
-      session.step = "jogos";
-      session.invalidCount = 0;
-      await msg.reply(
-        "⚽️ Jogos de hoje:\n\n" +
-          "📺 *Santos x São Paulo* - 16:00\n" +
-          "📺 *Flamengo x Palmeiras* - 18:00\n" +
-          "📺 *Atlético-MG x Internacional* - 20:00\n\n" +
-          "⚠️ *Obs:* Horários podem mudar, fique atento!"
-      );
-    }
-    
+    } 
     else {
       session.invalidCount = (session.invalidCount || 0) + 1;
       if (session.invalidCount < 3) {
