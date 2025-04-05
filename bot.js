@@ -9,7 +9,7 @@ const client = new Client({
   authStrategy: new LocalAuth(),
   puppeteer: {
     headless: true,
-    executablePath: "/usr/bin/chromium-browser",
+    // executablePath: "/usr/bin/chromium-browser",
     args: [
       "--no-sandbox",
       "--disable-setuid-sandbox",
@@ -44,6 +44,12 @@ client.on("message", async (msg) => {
 
   const chatId = msg.from;
 
+  // Verifica se a mensagem contém "obrigado" ou "obrigada"
+  if (msg.body.toLowerCase().includes("obrigado") || msg.body.toLowerCase().includes("obrigada")) {
+    await msg.reply("Disponha 🤝");
+    return;
+  }
+
   // Comando para ativar o modo ausente
   if (msg.body.toLowerCase() === "/ausente") {
     modoAusente = true;
@@ -74,8 +80,8 @@ client.on("message", async (msg) => {
   if (!userSessions.has(chatId) || now - userSessions.get(chatId).timestamp > 6 * 60 * 60 * 1000) {
     userSessions.set(chatId, { step: "menu", timestamp: now, invalidCount: 0 });
     await msg.reply(
-      "Bem-vindo ao menu! Escolha uma opção:\n\n" +
-      "1️⃣ Quero um teste grátis\n2️⃣ Já sou cliente\n3️⃣ Preços e planos\n4️⃣ Como funciona\n\n" +
+      "Bem vindo ao menu! Escolha uma opção:\n\n" +
+      "1️⃣ Quero um teste grátis\n2️⃣ Já sou cliente\n3️⃣ Preços e planos\n4️⃣ Como funciona\n5️⃣ Jogos de hoje ⚽️\n\n" +
       "⚠️ *Importante:* Suas mensagens só serão vistas por um humano se você responder ao MENU!"
     );
     return;
@@ -87,8 +93,8 @@ client.on("message", async (msg) => {
     session.step = "menu";
     session.invalidCount = 0;
     await msg.reply(
-      "Bem-vindo ao menu! Escolha uma opção:\n\n" +
-      "1️⃣ Quero um teste grátis\n2️⃣ Já sou cliente\n3️⃣ Preços e planos\n4️⃣ Como funciona\n\n" +
+      "Bem vindo ao menu! Escolha uma opção:\n\n" +
+      "1️⃣ Quero um teste grátis\n2️⃣ Já sou cliente\n3️⃣ Preços e planos\n4️⃣ Como funciona\n5️⃣ Jogos de hoje ⚽️\n\n" +
       "⚠️ *Importante:* Suas mensagens só serão vistas por um humano se você responder ao MENU!"
     );
     return;
@@ -123,12 +129,25 @@ client.on("message", async (msg) => {
       await msg.reply(
         "📺 *O QUE VOCÊ RECEBE:*\n- +1.000 canais (Premiere, Telecine, SportTV etc)\n- +20.000 filmes (Netflix, HBO Max, Prime Video etc)\n- +7.000 séries(Netflix, HBO Max, Prime Video etc)\n\n⚙️ *COMO FUNCIONA:*\n1. Você assina o plano\n2. Recebe login/senha no WhatsApp\n3. Instala nosso app ou player compatível\n4. Aproveita a programação 24h\n\n0️⃣ Menu inicial"
       );
-    } else {
+    } else if (msg.body === "5") {
+      session.step = "jogos";
+      session.invalidCount = 0;
+    
+      const resposta = await obterJogosParaWhatsApp();
+    
+      if (typeof resposta === 'string' && resposta.length > 0) {
+        await msg.reply(resposta);
+      } else {
+        await msg.reply("⚠️ Nenhum jogo foi encontrado ou houve erro ao obter os dados.");
+      }
+    } 
+    
+    else {
       session.invalidCount++;
       if (session.invalidCount < 3) {
         await msg.reply(
           "⚠️ Opção inválida! Escolha uma das opções abaixo:\n\n" +
-          "1️⃣ Quero um teste grátis\n2️⃣ Já sou cliente\n3️⃣ Preços e planos\n4️⃣ Como funciona"
+          "1️⃣ Quero um teste grátis\n2️⃣ Já sou cliente\n3️⃣ Preços e planos\n4️⃣ Como funciona\n5️⃣ Jogos de hoje ⚽️"
         );
       }
     }
@@ -137,10 +156,6 @@ client.on("message", async (msg) => {
     session.invalidCount = 0;
   
     const resposta = await obterJogosParaWhatsApp();
-  
-    // ⚠️ ADICIONE ISTO PARA DEPURAR
-    console.log('[DEBUG] Conteúdo da resposta:', resposta);
-    console.log('[DEBUG] Tipo da resposta:', typeof resposta);
   
     if (typeof resposta === 'string' && resposta.length > 0) {
       await msg.reply(resposta);

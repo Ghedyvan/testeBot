@@ -1,3 +1,3 @@
 const { obterJogosParaWhatsApp } = require('./scrapper');
 
-obterJogosParaWhatsApp().then(console.log);
+// obterJogosParaWhatsApp().then(console.log);

@@ -16,9 +16,39 @@ async function obterJogosParaWhatsApp() {
       const cacheContent = fs.readFileSync(cacheFilePath, "utf-8");
       if (cacheContent.trim()) {
         const cacheData = JSON.parse(cacheContent);
-        if (cacheData.data === dataHoje) {
+  
+        // Verifica se a data do cache é a mesma de hoje
+        if (cacheData.data === dataHoje && Array.isArray(cacheData.jogos)) {
           console.log("Usando dados do cache.");
-          return cacheData.resposta; // Retorna os dados do cache
+  
+          // Filtra os jogos do cache com base no horário atual
+          const agora = moment().tz("America/Sao_Paulo");
+          const fimDoDia = moment().tz("America/Sao_Paulo").endOf("day");
+          const jogosFiltrados = cacheData.jogos.filter((jogo) => {
+            const horarioJogo = moment(jogo.horario, "HH:mm").tz(
+              "America/Sao_Paulo"
+            );
+            return (
+              horarioJogo.isAfter(agora.clone().subtract(2, "hours")) &&
+              horarioJogo.isBefore(fimDoDia)
+            );
+          });
+  
+          if (jogosFiltrados.length === 0) {
+            return "⚠️ Nenhum jogo começou há no máximo 2 horas ou está programado para hoje.";
+          }
+  
+          // Formata a resposta com os jogos filtrados
+          let resposta = `⚽ *Jogos de hoje (${dataHoje})*\n\n`;
+          jogosFiltrados.forEach((jogo) => {
+            resposta += `*${jogo.jogo}*\n`;
+            resposta += `⏰ ${jogo.horario} - 🏆 ${jogo.campeonato}\n`;
+            resposta += `📺 ${jogo.transmissao}\n\n`;
+          });
+  
+          return resposta.trim();
+        } else {
+          console.error("Cache inválido ou corrompido. Recriando o arquivo...");
         }
       }
     } catch (error) {
@@ -68,14 +98,17 @@ async function obterJogosParaWhatsApp() {
     const fimDoDia = moment().tz("America/Sao_Paulo").endOf("day");
     const jogosFiltrados = jogos.filter((jogo) => {
       const horarioJogo = moment(jogo.horario, "HH:mm").tz("America/Sao_Paulo");
-      return horarioJogo.isBetween(agora.clone().subtract(2, "hours"), fimDoDia);
+      return (
+        horarioJogo.isAfter(agora.clone().subtract(2, "hours")) &&
+        horarioJogo.isBefore(fimDoDia)
+      );
     });
 
     if (jogosFiltrados.length === 0) {
       return "⚠️ Nenhum jogo começou há no máximo 2 horas ou está programado para hoje.";
     }
 
-    let resposta = `⚽ *Próximos jogos (${dataHoje}) ⚽*\n\n`;
+    let resposta = `⚽ *Jogos de hoje (${dataHoje})*\n\n`;
 
     jogosFiltrados.forEach((jogo) => {
       resposta += `*${jogo.jogo}*\n`;
@@ -88,7 +121,7 @@ async function obterJogosParaWhatsApp() {
     // Salva os dados no arquivo de cache
     fs.writeFileSync(
       cacheFilePath,
-      JSON.stringify({ data: dataHoje, resposta }, null, 2),
+      JSON.stringify({ data: dataHoje, jogos }, null, 2),
       "utf-8"
     );
 
