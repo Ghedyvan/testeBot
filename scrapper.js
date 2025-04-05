@@ -63,9 +63,21 @@ async function obterJogosParaWhatsApp() {
       return "⚠️ Nenhum jogo encontrado no momento.";
     }
 
-    let resposta = `⚽ *Jogos de hoje (${dataHoje})*\n\n`;
+    // Filtra os jogos que começaram há no máximo 2 horas ou que ainda vão acontecer até 23:59
+    const agora = moment().tz("America/Sao_Paulo");
+    const fimDoDia = moment().tz("America/Sao_Paulo").endOf("day");
+    const jogosFiltrados = jogos.filter((jogo) => {
+      const horarioJogo = moment(jogo.horario, "HH:mm").tz("America/Sao_Paulo");
+      return horarioJogo.isBetween(agora.clone().subtract(2, "hours"), fimDoDia);
+    });
 
-    jogos.forEach((jogo) => {
+    if (jogosFiltrados.length === 0) {
+      return "⚠️ Nenhum jogo começou há no máximo 2 horas ou está programado para hoje.";
+    }
+
+    let resposta = `⚽ *Próximos jogos (${dataHoje}) ⚽*\n\n`;
+
+    jogosFiltrados.forEach((jogo) => {
       resposta += `*${jogo.jogo}*\n`;
       resposta += `⏰ ${jogo.horario} - 🏆 ${jogo.campeonato}\n`;
       resposta += `📺 ${jogo.transmissao}\n\n`;
