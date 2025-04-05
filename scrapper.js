@@ -95,6 +95,8 @@ async function obterJogosParaWhatsApp() {
 
     // Filtra os jogos que começaram há no máximo 2 horas ou que ainda vão acontecer até 23:59
     const agora = moment().tz("America/Sao_Paulo");
+    console.log("Horário atual:", agora.format("HH:mm"));
+    console.log("Data de hoje:", dataHoje);
     const fimDoDia = moment().tz("America/Sao_Paulo").endOf("day");
     const jogosFiltrados = jogos.filter((jogo) => {
       const horarioJogo = moment(jogo.horario, "HH:mm").tz("America/Sao_Paulo");
