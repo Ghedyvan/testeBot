@@ -58,7 +58,21 @@ async function obterJogosParaWhatsApp() {
   }
 
   // Se o cache não existir ou estiver desatualizado, recria o cache
-  const browser = await puppeteer.launch({ headless: true });
+  // const browser = await puppeteer.launch({ headless: true });
+
+  const browser = await puppeteer.launch({
+    headless: true,
+    executablePath: "/usr/bin/chromium-browser", // Caminho do executável do Chromium
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--single-process",
+      "--no-zygote",
+      "--disable-gpu",
+      "--disable-dev-shm-usage",
+      "--max-old-space-size=256",
+    ],
+  });
   const page = await browser.newPage();
 
   try {
