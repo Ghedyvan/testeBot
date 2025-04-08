@@ -39,7 +39,7 @@ client.on("ready", () => {
 let modoAusente = false; // Variável global para rastrear o estado de "ausente"
 const avisosEnviados = new Set(); // Rastreamento de usuários que já receberam o aviso
 
-client.on("message", async (msg) => {
+async function handleMessage(msg) {
   if (msg.from.endsWith("@g.us")) return;
 
   const chatId = msg.from;
@@ -342,7 +342,33 @@ client.on("message", async (msg) => {
       }
     }
   }
+}
+
+client.on("message", async (msg) => {
+  // Verifica se a mensagem é de um grupo e ignora
+  if (msg.from.endsWith("@g.us")) return;
+
+  // Obtém a lista de contatos salvos
+  const contatos = await client.getContacts();
+
+  // Verifica se o remetente está na lista de contatos
+  const contatoSalvo = contatos.some((contato) => contato.id._serialized === msg.from);
+
+  if (!contatoSalvo) {
+    console.log(`Mensagem ignorada de número não salvo: ${msg.from}`);
+    return; // Ignora mensagens de números não salvos
+  }
+
+  // Processa a mensagem normalmente
+  await handleMessage(msg);
 });
+
 
 // Iniciar o cliente
 client.initialize();
+
+// No FINAL do seu arquivo principal, adicione:
+module.exports = {
+  client,
+  handleMessage // Você precisará criar essa função (veja passo 2)
+};
