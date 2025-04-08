@@ -344,23 +344,43 @@ async function handleMessage(msg) {
   }
 }
 
+async function isContactSaved(chatId) {
+  try {
+    const contacts = await client.getContacts();
+    const contact = contacts.find((c) => c.id._serialized === chatId);
+
+    if (contact) {
+      const isSaved = contact.isMyContact; // Verifica se o contato está salvo
+      console.log(`[VERIFICAÇÃO] O contato ${chatId} está salvo? ${isSaved}`);
+      return isSaved;
+    }
+
+    console.log(`[VERIFICAÇÃO] O contato ${chatId} não foi encontrado na lista de contatos.`);
+    return false; // Retorna false se o contato não foi encontrado
+  } catch (error) {
+    console.error("Erro ao verificar se o contato está salvo:", error);
+    return false; // Em caso de erro, assume que o contato não está salvo
+  }
+}
+
 client.on("message", async (msg) => {
   // Verifica se a mensagem é de um grupo e ignora
   if (msg.from.endsWith("@g.us")) return;
 
-  // Obtém a lista de contatos salvos
-  const contatos = await client.getContacts();
+  try {
+    // Verifica se o remetente está salvo nos contatos
+    const contatoSalvo = await isContactSaved(msg.from);
 
-  // Verifica se o remetente está na lista de contatos
-  const contatoSalvo = contatos.some((contato) => contato.id._serialized === msg.from);
+    if (!contatoSalvo) {
+      console.log(`Mensagem ignorada de número não salvo: ${msg.from}`);
+      return; // Ignora mensagens de números não salvos
+    }
 
-  if (!contatoSalvo) {
-    console.log(`Mensagem ignorada de número não salvo: ${msg.from}`);
-    return; // Ignora mensagens de números não salvos
+    // Processa a mensagem normalmente
+    await handleMessage(msg);
+  } catch (error) {
+    console.error("Erro ao processar a mensagem:", error);
   }
-
-  // Processa a mensagem normalmente
-  await handleMessage(msg);
 });
 
 
