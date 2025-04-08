@@ -78,11 +78,16 @@ async function handleMessage(msg) {
   const now = Date.now();
 
   if (!userSessions.has(chatId) || now - userSessions.get(chatId).timestamp > 6 * 60 * 60 * 1000) {
-    userSessions.set(chatId, { step: "menu", timestamp: now, invalidCount: 0 });
+    userSessions.set(chatId, { step: "cliente", timestamp: now, invalidCount: 0 });
     await msg.reply(
-      "Bem vindo ao menu! Escolha uma opção:\n\n" +
-      "1️⃣ Quero um teste grátis\n2️⃣ Já sou cliente\n3️⃣ Preços e planos\n4️⃣ Como funciona\n5️⃣ Jogos de hoje ⚽️\n\n" +
-      "⚠️ *Importante:* Suas mensagens só serão vistas por um humano se você responder ao MENU!"
+      "Opa! Como posso te ajudar?\n\n" +
+      "1️⃣ Renovar acesso\n" +
+      "2️⃣ Reativar acesso vencido\n" +
+      "3️⃣ Jogos de hoje ⚽️\n" +
+      "4️⃣ Instalar aplicativo\n" +
+      "5️⃣ Esqueci meus dados de acesso\n" +
+      "6️⃣ Estou com problemas \n\n" +
+      "0️⃣ Digite 0 para voltar ao Menu Inicial"
     );
     return;
   }
@@ -90,12 +95,17 @@ async function handleMessage(msg) {
   const session = userSessions.get(chatId);
 
   if (msg.body === "0") {
-    session.step = "menu";
+    session.step = "cliente";
     session.invalidCount = 0;
     await msg.reply(
-      "Bem vindo ao menu! Escolha uma opção:\n\n" +
-      "1️⃣ Quero um teste grátis\n2️⃣ Já sou cliente\n3️⃣ Preços e planos\n4️⃣ Como funciona\n5️⃣ Jogos de hoje ⚽️\n\n" +
-      "⚠️ *Importante:* Suas mensagens só serão vistas por um humano se você responder ao MENU!"
+      "Opa! Como posso te ajudar?\n\n" +
+      "1️⃣ Renovar acesso\n" +
+      "2️⃣ Reativar acesso vencido\n" +
+      "3️⃣ Jogos de hoje ⚽️\n" +
+      "4️⃣ Instalar aplicativo\n" +
+      "5️⃣ Esqueci meus dados de acesso\n" +
+      "6️⃣ Estou com problemas \n\n" +
+      "0️⃣ Digite 0 para voltar ao Menu Inicial"
     );
     return;
   }
@@ -103,77 +113,90 @@ async function handleMessage(msg) {
   if (session.invalidCount >= 3) return;
 
   if (session.step === "menu") {
+    // Novo menu principal (antigo "cliente")
+    session.step = "cliente";
+    session.invalidCount = 0;
+    await msg.reply(
+      "Opa! Como posso te ajudar?\n\n" +
+      "1️⃣ Renovar acesso\n" +
+      "2️⃣ Reativar acesso vencido\n" +
+      "3️⃣ Jogos de hoje ⚽️\n" +
+      "4️⃣ Instalar aplicativo\n" +
+      "5️⃣ Esqueci meus dados de acesso\n" +
+      "6️⃣ Estou com problemas \n\n" +
+      "0️⃣ Digite 0 para voltar ao Menu Inicial"
+    );
+  } else if (session.step === "cliente") {
     if (msg.body === "1") {
-      session.step = "teste_gratis";
+      session.step = "renovar";
       session.invalidCount = 0;
       await msg.reply(
-        "Em qual dispositivo gostaria de realizar o teste?\n\n1️⃣ Celular\n2️⃣ TV Box\n3️⃣ Smart TV\n4️⃣ Computador\n\n0️⃣ Menu inicial"
+        "💳 Se você já recebeu o link do InfinitePay, pode pagar por lá, tranquilo? Se não chegou, é só me avisar que eu te envio o link com todo prazer!"
       );
     } else if (msg.body === "2") {
-      session.step = "cliente";
+      session.step = "reativar";
       session.invalidCount = 0;
       await msg.reply(
-        "Perfeito. Como posso te ajudar?\n\n1️⃣ Quero renovar acesso\n2️⃣ Quero reativar acesso vencido\n3️⃣ Estou com problemas\n4️⃣ Quero configurar um dispositivo\n5️⃣ Esqueci meus dados de acesso\n6️⃣ Jogos de hoje\n\n0️⃣ Menu inicial"
+        "📝 A reativação de acesso vencido tem taxa de R$5 (total: R$25). Caso tenha recebido o link do InfinitePay, pode pagar normalmente nele. Se não, me informa para te enviar ele ok"
       );
-    } else if (msg.body === "3") {
-      session.step = "planos";
+    } else if (msg.body === "6") {
+      session.step = "problema";
       session.invalidCount = 0;
       await msg.reply(
-        "📺 *PLANOS IPTV* 📺\n\n" +
-        "💵 *1 MÊS* - R$ 20 _(R$ 25 na primeira mensalidade)_\n💰 *3 MESES* - R$ 55\n🔥 *6 MESES* - R$ 100\n_(Apenas R$ 16,66/mês)_\n🏆 *1 ANO* - R$ 180\n_(Só R$ 15,00/mês)_\n\n" +
-        "💳 Aceitamos PIX, boleto e cartão de crédito\n\n1️⃣ Ativar acesso agora\n0️⃣ Menu inicial"
+        "💬 Me conta mais detalhes ou envia uma foto do erro, se tiver!"
       );
     } else if (msg.body === "4") {
-      session.step = "funcionamento";
+      session.step = "configurar";
       session.invalidCount = 0;
       await msg.reply(
-        "📺 *O QUE VOCÊ RECEBE:*\n- +1.000 canais (Premiere, Telecine, SportTV etc)\n- +20.000 filmes (Netflix, HBO Max, Prime Video etc)\n- +7.000 séries(Netflix, HBO Max, Prime Video etc)\n\n⚙️ *COMO FUNCIONA:*\n1. Você assina o plano\n2. Recebe login/senha no WhatsApp\n3. Instala nosso app ou player compatível\n4. Aproveita a programação 24h\n\n0️⃣ Menu inicial"
+        "Em qual dispositivo gostaria de configurar agora?\n\n" +
+        "1️⃣ Celular\n" +
+        "2️⃣ TV Box\n" +
+        "3️⃣ Smart TV\n" +
+        "4️⃣ Computador\n\n" +
+        "0️⃣ Digite 0 para voltar ao Menu Inicial"
       );
     } else if (msg.body === "5") {
+      session.step = "esquecer";
+      session.invalidCount = 0;
+      await msg.reply(
+        "📩 Me informa seu primeiro e segundo nome que irei buscar seus dados de acesso para te enviar"
+      );
+    } else if (msg.body === "3") {
       session.step = "jogos";
       session.invalidCount = 0;
-    
+  
       const resposta = await obterJogosParaWhatsApp();
-    
-      if (typeof resposta === 'string' && resposta.length > 0) {
+  
+      if (typeof resposta === "string" && resposta.length > 0) {
         await msg.reply(resposta);
       } else {
         await msg.reply("⚠️ Nenhum jogo foi encontrado ou houve erro ao obter os dados.");
       }
-    } 
-    
-    else {
-      session.invalidCount++;
+    } else {
+      session.invalidCount = (session.invalidCount || 0) + 1;
       if (session.invalidCount < 3) {
         await msg.reply(
-          "⚠️ Opção inválida! Escolha uma das opções abaixo:\n\n" +
-          "1️⃣ Quero um teste grátis\n2️⃣ Já sou cliente\n3️⃣ Preços e planos\n4️⃣ Como funciona\n5️⃣ Jogos de hoje ⚽️"
+          "Opa! Como posso te ajudar?\n\n" +
+          "1️⃣ Renovar acesso\n" +
+          "2️⃣ Reativar acesso vencido\n" +
+          "3️⃣ Jogos de hoje ⚽️\n" +
+          "4️⃣ Instalar aplicativo\n" +
+          "5️⃣ Esqueci meus dados de acesso\n" +
+          "6️⃣ Estou com problemas \n\n" +
+          "0️⃣ Digite 0 para voltar ao Menu Inicial"
         );
       }
-    }
-  } else if (session.step === "cliente" && msg.body === "6") {
-    session.step = "jogos";
-    session.invalidCount = 0;
-  
-    const resposta = await obterJogosParaWhatsApp();
-  
-    if (typeof resposta === 'string' && resposta.length > 0) {
-      await msg.reply(resposta);
-    } else {
-      await msg.reply("⚠️ Nenhum jogo foi encontrado ou houve erro ao obter os dados.");
     }
   } else if (session.step === "planos") {
     if (msg.body === "1") {
       session.step = "ativar";
       session.invalidCount = 0;
-      // await msg.reply(
-      //   "Qual plano você deseja ativar?\n\n1️⃣ 1 MÊS - R$ 20 (R$ 25 na primeira mensalidade)\n2️⃣ 3 MESES - R$ 55\n3️⃣ 6 MESES - R$ 100\n4️⃣ 1 ANO - R$ 180\n\n0️⃣ Menu inicial"
-      // );
       await msg.reply(
         "Perfeito, me fale qual plano gostaria de ativar e logo que ver a mensagem te responderei ok?\n\n0️⃣ Menu inicial"
       );
     }
-  } else if (session.step === "teste_gratis" || session.step === "configurar") {
+  } else if (session.step === "configurar") {
     if (msg.body === "1") {
       session.step = "celular";
       session.invalidCount = 0;
@@ -337,7 +360,7 @@ async function handleMessage(msg) {
       session.invalidCount = (session.invalidCount || 0) + 1;
       if (session.invalidCount < 3) {
         await msg.reply(
-          "Perfeito. Como posso te ajudar?\n\n1️⃣ Quero renovar acesso\n2️⃣ Quero reativar acesso vencido\n3️⃣ Estou com problemas\n4️⃣ Quero configurar um dispositivo\n5️⃣ Esqueci meus dados de acesso\n6 - Jogos de hoje \n\n0️⃣ Menu inicial"
+          "Opa! Como posso te ajudar?\n\n1️⃣ Quero renovar acesso\n2️⃣ Quero reativar acesso vencido\n3️⃣ Estou com problemas\n4️⃣ Quero configurar um dispositivo\n5️⃣ Esqueci meus dados de acesso\n6 - Jogos de hoje \n\n0️⃣ Menu inicial"
         );
       }
     }

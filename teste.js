@@ -16,7 +16,6 @@ function enviarParaBot(mensagem) {
     from: usuarioTeste,
     body: mensagem,
     reply: (resposta) => console.log('\n[BOT]:', resposta),
-    // Adicione estas propriedades se seu bot precisar:
     getChat: () => ({ sendMessage: () => {} }),
     getContact: () => ({ pushname: "Usuário Teste" })
   };
