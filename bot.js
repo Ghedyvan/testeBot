@@ -9,7 +9,7 @@ const client = new Client({
   authStrategy: new LocalAuth(),
   puppeteer: {
     headless: true,
-    executablePath: "/usr/bin/chromium-browser",
+    //executablePath: "/usr/bin/chromium-browser",
     args: [
       "--no-sandbox",
       "--disable-setuid-sandbox",
@@ -87,7 +87,7 @@ async function handleMessage(msg) {
       "4️⃣ Instalar aplicativo\n" +
       "5️⃣ Esqueci meus dados de acesso\n" +
       "6️⃣ Estou com problemas \n\n" +
-      "0️⃣ Digite 0 para voltar ao Menu Inicial"
+      "⚠️ Um humano não verá suas mensagens até que uma opção válida do robô seja escolhida" 
     );
     return;
   }
@@ -98,7 +98,7 @@ async function handleMessage(msg) {
     session.step = "cliente";
     session.invalidCount = 0;
     await msg.reply(
-      "Opa! Como posso te ajudar?\n\n" +
+      "Bem vindo de volta ao menu\n\n" +
       "1️⃣ Renovar acesso\n" +
       "2️⃣ Reativar acesso vencido\n" +
       "3️⃣ Jogos de hoje ⚽️\n" +
@@ -117,7 +117,7 @@ async function handleMessage(msg) {
     session.step = "cliente";
     session.invalidCount = 0;
     await msg.reply(
-      "Opa! Como posso te ajudar?\n\n" +
+      "Bem vindo de volta ao menu\n\n" +
       "1️⃣ Renovar acesso\n" +
       "2️⃣ Reativar acesso vencido\n" +
       "3️⃣ Jogos de hoje ⚽️\n" +
@@ -131,7 +131,8 @@ async function handleMessage(msg) {
       session.step = "renovar";
       session.invalidCount = 0;
       await msg.reply(
-        "💳 Se você já recebeu o link do InfinitePay, pode pagar por lá, tranquilo? Se não chegou, é só me avisar que eu te envio o link com todo prazer!"
+        "💳 Se você já recebeu o link do InfinitePay, pode pagar por lá, tranquilo? Se não chegou, é só me avisar que eu te envio o link com todo prazer!" +
+        "\n\n1️⃣ Já efetuei o pagamento\n2️⃣ Não recebi o link de pagamento\n\n0️⃣ Digite 0 para voltar ao Menu Inicial"  
       );
     } else if (msg.body === "2") {
       session.step = "reativar";
@@ -324,43 +325,27 @@ async function handleMessage(msg) {
         );
       }
     }
-  } else if (session.step === "cliente") {
+  } else if (session.step === "renovar") {
     if (msg.body === "1") {
-      session.step = "renovar";
+      session.step = "jaPaguei";
       session.invalidCount = 0;
       await msg.reply(
-        "💳 Se você já recebeu o link do InfinitePay, pode pagar por lá, tranquilo? Se não chegou, é só me avisar que eu te envio o link com todo prazer!"
+        "Perfeito, me envia o comprovante por favor e logo que um humano ver seu acesso será renovado\n\n0️⃣ Menu inicial"
       );
     } else if (msg.body === "2") {
-      session.step = "reativar";
+      session.step = "naoRecebi";
       session.invalidCount = 0;
       await msg.reply(
-        "📝 A reativação de acesso vencido tem taxa de R$5 (total: R$25). Caso tenha recebido o link do InfinitePay, pode pagar normalmente nele. Se não, me informa para te enviar ele ok"
+        "Sem problemas, você pode pagar através da chave pix abaixo, ela é do tipo aleatória:"
       );
-    } else if (msg.body === "3") {
-      session.step = "problema";
-      session.invalidCount = 0;
       await msg.reply(
-        "💬 Me conta mais detalhes ou envia uma foto do erro, se tiver!"
+        "c366c9e3-fb7c-431f-957e-97287f4f964f"
       );
-    } else if (msg.body === "4") {
-      session.step = "configurar";
-      session.invalidCount = 0;
-      await msg.reply(
-        "Em qual dispositivo gostaria de configurar agora?\n\n1️⃣ Celular\n2️⃣ TV Box\n3️⃣ Smart TV\n4️⃣ Computador\n\n0️⃣ Menu inicial"
-      );
-    } else if (msg.body === "5") {
-      session.step = "esquecer";
-      session.invalidCount = 0;
-      await msg.reply(
-        "📩 Me informa seu primeiro e segundo nome que irei buscar seus dados de acesso para te enviar"
-      );
-    } 
-    else {
+    } else {
       session.invalidCount = (session.invalidCount || 0) + 1;
       if (session.invalidCount < 3) {
         await msg.reply(
-          "Opa! Como posso te ajudar?\n\n1️⃣ Quero renovar acesso\n2️⃣ Quero reativar acesso vencido\n3️⃣ Estou com problemas\n4️⃣ Quero configurar um dispositivo\n5️⃣ Esqueci meus dados de acesso\n6 - Jogos de hoje \n\n0️⃣ Menu inicial"
+          "Escolha uma opção válida:\n\n1️⃣ Já efetuei o pagamento\n2️⃣ Não recebi o link de pagamento\n\n0️⃣ Menu inicial"
         );
       }
     }
